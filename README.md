@@ -1,5 +1,3 @@
-# README.md
-
 [![Go](https://github.com/balinomad/go-atomicwriter/actions/workflows/go.yml/badge.svg)](https://github.com/balinomad/go-atomicwriter/actions/workflows/go.yml)
 
 # go-atomicwriter
