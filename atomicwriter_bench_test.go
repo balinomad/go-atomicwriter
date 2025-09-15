@@ -13,12 +13,17 @@ type mutexWriter struct {
 	w  io.Writer
 }
 
+// Write writes to the underlying writer while holding a read lock.
+// It returns the number of bytes written and any error encountered.
 func (mw *mutexWriter) Write(p []byte) (int, error) {
 	mw.mu.RLock()
 	defer mw.mu.RUnlock()
 	return mw.w.Write(p)
 }
 
+// Swap atomically replaces the underlying writer with the provided writer.
+// It acquires a write lock and updates the writer, then releases the lock.
+// This ensures that writes and swaps are serialized, preventing race conditions.
 func (mw *mutexWriter) Swap(w io.Writer) {
 	mw.mu.Lock()
 	defer mw.mu.Unlock()
@@ -27,6 +32,9 @@ func (mw *mutexWriter) Swap(w io.Writer) {
 
 var testData = []byte("this is some benchmark test data")
 
+// BenchmarkWrite compares the write performance of mutexWriter and AtomicWriter.
+// It benchmarks a single goroutine writing to each writer and measures the
+// throughput in bytes per second.
 func BenchmarkWrite(b *testing.B) {
 	b.Run("mutex_writer", func(b *testing.B) {
 		mw := &mutexWriter{w: &blackholeWriter{}}

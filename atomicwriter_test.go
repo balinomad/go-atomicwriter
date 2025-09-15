@@ -10,18 +10,21 @@ import (
 	"time"
 )
 
-// safeBuffer is a thread-safe bytes.Buffer.
+// safeBuffer is a thread-safe bytes.Buffer for testing.
 type safeBuffer struct {
 	mu  sync.Mutex
 	buf bytes.Buffer
 }
 
+// Write writes to the underlying bytes.Buffer while holding a lock.
+// It returns the number of bytes written and any error encountered.
 func (sb *safeBuffer) Write(p []byte) (int, error) {
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
 	return sb.buf.Write(p)
 }
 
+// String returns a string representation of the underlying bytes.Buffer.
 func (sb *safeBuffer) String() string {
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
@@ -94,6 +97,10 @@ func (bh *blackholeWriter) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
+// TestNewAtomicWriter tests the NewAtomicWriter function by verifying that it
+// correctly returns an AtomicWriter instance with the provided writer and
+// handles errors correctly. It also checks that the stored writer matches the
+// provided writer.
 func TestNewAtomicWriter(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -152,6 +159,8 @@ func TestNewAtomicWriter(t *testing.T) {
 	}
 }
 
+// TestMustNewAtomicWriter tests the MustNewAtomicWriter function by verifying
+// that it panics if given a nil writer and works correctly with a valid writer.
 func TestMustNewAtomicWriter(t *testing.T) {
 	t.Run("panic on nil writer", func(t *testing.T) {
 		defer func() {
@@ -171,6 +180,10 @@ func TestMustNewAtomicWriter(t *testing.T) {
 	})
 }
 
+// TestAtomicWriter_Write tests the Write method of AtomicWriter by verifying that it
+// correctly writes the provided data to the underlying writer, handles errors correctly,
+// and returns the correct number of bytes written. It also checks that the stored writer
+// content matches the provided data.
 func TestAtomicWriter_Write(t *testing.T) {
 	aw := MustNewAtomicWriter(&bytes.Buffer{})
 	data := []byte("hello world")
@@ -190,6 +203,10 @@ func TestAtomicWriter_Write(t *testing.T) {
 	}
 }
 
+// TestAtomicWriter_Sync tests the Sync method of AtomicWriter by verifying that it
+// calls the underlying writer's Sync() or Flush() method if supported. It also checks
+// that the Sync() method does not return an error when the underlying writer does not
+// support Sync() or Flush().
 func TestAtomicWriter_Sync(t *testing.T) {
 	t.Run("sync supported", func(t *testing.T) {
 		writer := &syncWriter{}
@@ -229,6 +246,9 @@ func TestAtomicWriter_Sync(t *testing.T) {
 	})
 }
 
+// TestAtomicWriter_Swap tests the Swap method of AtomicWriter by verifying that it
+// correctly replaces the underlying writer, syncing the old one first. It also
+// checks that the stored writer content matches the written data.
 func TestAtomicWriter_Swap(t *testing.T) {
 	buf1 := &bytes.Buffer{}
 	aw := MustNewAtomicWriter(buf1)
@@ -249,6 +269,9 @@ func TestAtomicWriter_Swap(t *testing.T) {
 	}
 }
 
+// TestAtomicWriter_Swap_SyncError tests the Swap method of AtomicWriter when
+// the old writer's Sync method returns an error.
+// It verifies that the Swap operation fails and the underlying writer is not swapped.
 func TestAtomicWriter_Swap_SyncError(t *testing.T) {
 	oldWriter := &syncErrorWriter{}
 	aw := MustNewAtomicWriter(oldWriter)
@@ -266,6 +289,9 @@ func TestAtomicWriter_Swap_SyncError(t *testing.T) {
 	}
 }
 
+// TestAtomicWriter_ConcurrentWriteAndSwap tests the AtomicWriter under concurrent writes
+// and swaps. It verifies that the writes are properly serialized and that the underlying
+// writer is swapped correctly.
 func TestAtomicWriter_ConcurrentWriteAndSwap(t *testing.T) {
 	aw := MustNewAtomicWriter(&safeBuffer{})
 
@@ -298,6 +324,9 @@ func TestAtomicWriter_ConcurrentWriteAndSwap(t *testing.T) {
 	wg.Wait()
 }
 
+// TestAtomicWriter_HotSwapping tests the hot-swapping of an AtomicWriter.
+// It verifies that the writes are properly serialized and that the underlying
+// writer is swapped correctly.
 func TestAtomicWriter_HotSwapping(t *testing.T) {
 	buf1 := &bytes.Buffer{}
 	aw, _ := NewAtomicWriter(buf1)
