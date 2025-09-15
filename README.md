@@ -80,15 +80,14 @@ func main() {
 // Buffer 2 contains: "second message\n"
 ```
 
-
 ## 📘 API Reference
 
 ### Constructor Functions
 
 | Function | Description |
 |----------|-------------|
-| `NewAtomicWriter(w)`     | Creates a new writer. Returns an error if `w` is `nil`.                      |
-| `MustNewAtomicWriter(w)` | Creates a new writer. Panics if `w` is `nil`.                                |
+| `NewAtomicWriter(w)`     | Creates a new writer. Returns an error if `w` is `nil`. |
+| `MustNewAtomicWriter(w)` | Creates a new writer. Panics if `w` is `nil`. |
 
 ### Methods
 
