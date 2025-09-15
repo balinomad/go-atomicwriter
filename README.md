@@ -1,6 +1,12 @@
+[![GoDoc](https://pkg.go.dev/badge/github.com/balinomad/go-atomicwriter?status.svg)](https://pkg.go.dev/github.com/balinomad/go-atomicwriter?tab=doc)
+[![GoMod](https://img.shields.io/github/go-mod/go-version/balinomad/go-atomicwriter)](https://github.com/balinomad/go-atomicwriter)
+[![Size](https://img.shields.io/github/languages/code-size/balinomad/go-atomicwriter)](https://github.com/balinomad/go-atomicwriter)
+[![License](https://img.shields.io/github/license/balinomad/go-atomicwriter)](./LICENSE)
 [![Go](https://github.com/balinomad/go-atomicwriter/actions/workflows/go.yml/badge.svg)](https://github.com/balinomad/go-atomicwriter/actions/workflows/go.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/balinomad/go-atomicwriter)](https://goreportcard.com/report/github.com/balinomad/go-atomicwriter)
+[![codecov](https://codecov.io/github/balinomad/go-atomicwriter/graph/badge.svg?token=L1K68IIN51)](https://codecov.io/github/balinomad/go-atomicwriter)
 
-# go-atomicwriter
+# atomicwriter
 
 *A thread-safe `io.Writer` that lets you atomically swap the underlying writer. Built for high-concurrency applications.*
 
@@ -19,6 +25,12 @@ Perfect for use in:
   - **High Performance**: Uses a `sync.RWMutex` to allow for concurrent, non-blocking writes. A swap operation acquires a full lock only for the brief moment it takes to switch writers.
   - **Interface-Driven**: Works with any `io.Writer` and automatically detects if the writer implements `Sync()` or `Flush()`.
   - **Minimal API**: Simple, clean, and dependency-free.
+
+## 📌 Installation
+
+```bash
+go get github.com/balinomad/go-atomicwriter@latest
+```
 
 ## 🚀 Usage
 
@@ -68,23 +80,27 @@ func main() {
 // Buffer 2 contains: "second message\n"
 ```
 
-## 📌 Installation
 
-```bash
-go get github.com/balinomad/go-atomicwriter@latest
-```
+## 📘 API Reference
 
-## 📘 API Highlights
+### Constructor Functions
 
-| Method                   | Description                                                                  |
-| ------------------------ | ---------------------------------------------------------------------------- |
+| Function | Description |
+|----------|-------------|
 | `NewAtomicWriter(w)`     | Creates a new writer. Returns an error if `w` is `nil`.                      |
 | `MustNewAtomicWriter(w)` | Creates a new writer. Panics if `w` is `nil`.                                |
-| `Write(p)`               | Writes data to the current underlying writer. It is safe for concurrent use. |
-| `Swap(w)`                | Atomically replaces the underlying writer, syncing the old one first.        |
-| `Sync()`                 | Calls `Sync()` or `Flush()` on the current writer if supported.              |
 
-## 🔧 Advanced Example: Logger Hot-Swapping
+### Methods
+
+| Method | Description |
+|--------|-------------|
+| `Write(p)` | Writes data to the current underlying writer. It is safe for concurrent use. |
+| `Swap(w)` | Atomically replaces the underlying writer, syncing the old one first. |
+| `Sync()` | Calls `Sync()` or `Flush()` on the current writer if supported. |
+
+## 🔧 Advanced Usage
+
+### Logger Hot-Swapping
 
 `AtomicWriter` is ideal for managing logger outputs. You can reconfigure logging targets—for example, from `stdout` to a file—at runtime without restarting your application.
 
@@ -152,6 +168,18 @@ app: 2025/08/24 01:24:03 Switched to file-based logging.
 app: 2025/08/24 01:24:03 Log message #3
 app: 2025/08/24 01:24:04 Log message #4
 app: 2025/08/24 01:24:05 Application finished.
+```
+
+## 🧪 Testing
+
+Run tests with:
+```bash
+go test -v
+```
+
+Run benchmarks with:
+```bash
+go test -bench=. -benchmem
 ```
 
 ## ⚖️ License
